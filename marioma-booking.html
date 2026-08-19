@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Marioma Nails — Book Your Appointment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --marble:#F7F5F2;
+    --marble-deep:#EAE6DE;
+    --paper:#FFFFFF;
+    --ink:#181818;
+    --green:#181818;
+    --green-deep:#0B0B0B;
+    --gold:#B08D57;
+    --gold-light:#D9C6A0;
+    --gold-dark:#8A6D3F;
+    --maroon:#6B2E3D;
+    --line: rgba(176,141,87,0.3);
+    --shadow: 0 10px 30px rgba(0,0,0,0.14);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--green-deep);}
+  body{
+    font-family:'Poppins',sans-serif;
+    color:var(--ink);
+    display:flex; justify-content:center;
+    min-height:100vh;
+  }
+  #app{
+    width:100%; max-width:480px; min-height:100vh;
+    background: radial-gradient(1200px 400px at 50% -100px, var(--marble-deep), var(--marble));
+    display:flex; flex-direction:column;
+  }
+  .topbar{
+    padding:26px 20px 18px; text-align:center;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-family:'Cormorant Garamond', serif; font-weight:600; font-size:36px;
+    color:var(--gold-dark); letter-spacing:2px;
+  }
+  .brand-sub{
+    font-size:13px; letter-spacing:3px; color:var(--green); margin-top:2px; text-transform:uppercase;
+  }
+  main{ flex:1; padding:22px 18px 40px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:13px; font-weight:700; color:var(--green); margin-bottom:6px; }
+  .field input, .field select{
+    width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--paper); font-family:inherit; font-size:15px; color:var(--ink);
+  }
+  .field input:focus, .field select:focus{ outline:2px solid var(--gold); }
+  .btn{
+    border:none; cursor:pointer; font-family:inherit; font-weight:700; border-radius:12px;
+    padding:15px; font-size:16px; width:100%;
+  }
+  .btn-gold{ background:linear-gradient(135deg, var(--gold-light), var(--gold)); color:var(--green-deep); box-shadow:var(--shadow); }
+  .btn-gold:active{ transform:scale(0.98); }
+  .note{ font-size:12.5px; color:var(--green); opacity:.75; line-height:1.7; margin-top:14px; text-align:center; }
+  .period-banner{
+    background:var(--gold-light); color:var(--green-deep); font-size:13px; font-weight:700;
+    padding:12px 14px; border-radius:12px; margin-bottom:18px; text-align:center; line-height:1.6;
+  }
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
+    background:var(--green-deep); color:var(--marble); padding:12px 20px; border-radius:30px;
+    font-size:14px; box-shadow:var(--shadow); z-index:50; opacity:0; pointer-events:none;
+    transition:opacity .25s; max-width:88%; text-align:center;
+  }
+  .toast.show{ opacity:1; }
+  .success{
+    text-align:center; padding:60px 20px;
+  }
+  .success .icon{ font-size:56px; margin-bottom:14px; }
+  .success h2{ font-family:'Cormorant Garamond', serif; color:var(--gold-dark); font-size:26px; margin:0 0 10px; }
+  .success p{ color:var(--green); font-size:14.5px; line-height:1.8; opacity:.85; margin:0 0 26px; }
+  .loading{ text-align:center; padding:60px 20px; color:var(--green); opacity:.7; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">Marioma</div>
+    <div class="brand-sub">NAILS — Book Your Appointment</div>
+  </div>
+  <main id="content">
+    <div class="loading">Loading…</div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBA7SXcaGf8Ouvi49f_5LMZzYjKtdFUsuw",
+    authDomain: "marioma-nails.firebaseapp.com",
+    projectId: "marioma-nails",
+    storageBucket: "marioma-nails.firebasestorage.app",
+    messagingSenderId: "665411474628",
+    appId: "1:665411474628:web:b127400683ab2a6c772591"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+<script>
+const DEFAULT_SERVICES = [
+  { id:'svc1', name:'Acrylic', price:35 },
+  { id:'svc2', name:'Dip Powder', price:35 },
+  { id:'svc3', name:'Hard Gel', price:35 },
+];
+let services = [];
+let bookingSettings = null;
+
+function escapeHtml(str){
+  return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function buildSlots(startTime, endTime, minutes){
+  const slots = [];
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  let cur = sh*60+sm;
+  const end = eh*60+em;
+  while(cur + minutes <= end){
+    const h = String(Math.floor(cur/60)).padStart(2,'0');
+    const m = String(cur%60).padStart(2,'0');
+    slots.push(`${h}:${m}`);
+    cur += minutes;
+  }
+  return slots;
+}
+
+function renderClosed(){
+  const main = document.getElementById('content');
+  main.innerHTML = `
+    <div class="success">
+      <div class="icon">🌸</div>
+      <h2>Online Booking Is Currently Closed</h2>
+      <p>Please reach out directly to book your appointment.</p>
+    </div>`;
+}
+
+function renderForm(){
+  const main = document.getElementById('content');
+  const effMin = bookingSettings.startDate < todayStr() ? todayStr() : bookingSettings.startDate;
+  const effMax = bookingSettings.endDate;
+  main.innerHTML = `
+    <div class="period-banner">📅 Booking available from ${fmtDateHuman(effMin)} to ${fmtDateHuman(effMax)} (from ${bookingSettings.startTime} to ${bookingSettings.endTime})</div>
+    <div class="field">
+      <label>Your Name</label>
+      <input id="b-name" placeholder="Your name">
+    </div>
+    <div class="field">
+      <label>Phone Number</label>
+      <input id="b-phone" placeholder="(555) 123-4567" type="tel">
+    </div>
+    <div class="field">
+      <label>Service</label>
+      <select id="b-service">
+        ${services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — $${s.price}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="b-date" min="${effMin}" max="${effMax}" value="${effMin}">
+    </div>
+    <div class="field">
+      <label>Available Time</label>
+      <select id="b-time"><option value="">Loading available times…</option></select>
+    </div>
+    <button class="btn btn-gold" id="b-submit">Confirm Booking</button>
+    <div class="note">Your request will be reviewed, and you'll be contacted if anything needs to change.</div>
+  `;
+  document.getElementById('b-submit').onclick = submitBooking;
+  document.getElementById('b-date').onchange = loadAvailableSlots;
+  loadAvailableSlots();
+}
+
+function fmtDateHuman(dateStr){
+  if(!dateStr) return '—';
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${months[m-1]} ${d}`;
+}
+
+async function loadAvailableSlots(){
+  const date = document.getElementById('b-date').value;
+  const sel = document.getElementById('b-time');
+  sel.innerHTML = `<option value="">Loading available times…</option>`;
+  if(!date) return;
+  const effMin = bookingSettings.startDate < todayStr() ? todayStr() : bookingSettings.startDate;
+  if(date < effMin || date > bookingSettings.endDate){
+    sel.innerHTML = `<option value="">This date is outside the available booking window</option>`;
+    return;
+  }
+  const allSlots = buildSlots(bookingSettings.startTime, bookingSettings.endTime, bookingSettings.slotMinutes || 60);
+  try{
+    const snap = await db.collection('appointments').where('date','==',date).get();
+    const taken = new Set(snap.docs.filter(d=>d.data().status!=='cancelled').map(d=>d.data().time));
+    const free = allSlots.filter(t=>!taken.has(t));
+    if(!free.length){
+      sel.innerHTML = `<option value="">No available times on this day</option>`;
+      return;
+    }
+    sel.innerHTML = free.map(t=>`<option value="${t}">${t}</option>`).join('');
+  }catch(e){
+    sel.innerHTML = `<option value="">Could not load available times</option>`;
+  }
+}
+
+async function submitBooking(){
+  const name = document.getElementById('b-name').value.trim();
+  const phone = document.getElementById('b-phone').value.trim();
+  const serviceId = document.getElementById('b-service').value;
+  const date = document.getElementById('b-date').value;
+  const time = document.getElementById('b-time').value;
+  const svc = services.find(s=>s.id===serviceId);
+
+  if(!name){ showToast('Please enter your name'); return; }
+  if(!phone){ showToast('Please enter your phone number'); return; }
+  if(!date){ showToast('Please choose a date'); return; }
+  if(!time){ showToast('Please choose an available time'); return; }
+
+  const effMin = bookingSettings.startDate < todayStr() ? todayStr() : bookingSettings.startDate;
+  if(date < effMin || date > bookingSettings.endDate){
+    showToast('This date is outside the available booking window, please pick another date');
+    return;
+  }
+  const allowedSlots = buildSlots(bookingSettings.startTime, bookingSettings.endTime, bookingSettings.slotMinutes || 60);
+  if(!allowedSlots.includes(time)){
+    showToast('That time is not available, please choose one from the list');
+    return;
+  }
+
+  const btn = document.getElementById('b-submit');
+  btn.disabled = true; btn.textContent = 'Booking…';
+
+  const slotId = `${date}_${time.replace(':','')}`;
+  const slotRef = db.collection('appointments').doc(slotId);
+
+  try{
+    await db.runTransaction(async (tx)=>{
+      const doc = await tx.get(slotRef);
+      if(doc.exists && doc.data().status !== 'cancelled'){
+        throw new Error('TAKEN');
+      }
+      tx.set(slotRef, {
+        name, phone, serviceId,
+        serviceName: svc ? svc.name : '—',
+        date, time,
+        status: 'pending',
+        price: svc ? svc.price : 0,
+        source: 'online',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    renderSuccess(name);
+  }catch(e){
+    if(e && e.message === 'TAKEN'){
+      showToast('Sorry, someone just booked that slot — please pick another time');
+      loadAvailableSlots();
+    }else{
+      showToast('Something went wrong, please try again');
+    }
+    btn.disabled = false; btn.textContent = 'Confirm Booking';
+  }
+}
+
+function renderSuccess(name){
+  const main = document.getElementById('content');
+  main.innerHTML = `
+    <div class="success">
+      <div class="icon">💚</div>
+      <h2>We've received your request, ${escapeHtml(name)}</h2>
+      <p>Your request will be reviewed and you'll be contacted if anything needs to change. Thank you for choosing Marioma Nails.</p>
+      <button class="btn btn-gold" onclick="location.reload()">Book Another Appointment</button>
+    </div>
+  `;
+}
+
+(function init(){
+  Promise.all([
+    db.collection('services').get(),
+    db.collection('settings').doc('booking').get()
+  ]).then(([svcSnap, settingsDoc])=>{
+    services = svcSnap.empty ? DEFAULT_SERVICES.slice() : svcSnap.docs.map(d=>({ id:d.id, ...d.data() }));
+    if(!settingsDoc.exists){ renderClosed(); return; }
+    bookingSettings = settingsDoc.data();
+    const today = todayStr();
+    if(!bookingSettings.endDate || bookingSettings.endDate < today){ renderClosed(); return; }
+    renderForm();
+  }).catch(()=>{
+    services = DEFAULT_SERVICES.slice();
+    renderClosed();
+  });
+})();
+</script>
+</body>
+</html>
