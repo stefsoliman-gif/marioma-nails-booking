@@ -5,24 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Marioma Nails — Book Your Appointment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --marble:#F7F5F2;
-    --marble-deep:#EAE6DE;
-    --paper:#FFFFFF;
-    --ink:#181818;
-    --green:#181818;
-    --green-deep:#0B0B0B;
+    --ink:#17140F;
+    --paper:#FAF6F1;
+    --paper-deep:#F1E7DA;
+    --card:#FFFFFF;
     --gold:#B08D57;
     --gold-light:#D9C6A0;
     --gold-dark:#8A6D3F;
-    --maroon:#6B2E3D;
-    --line: rgba(176,141,87,0.3);
-    --shadow: 0 10px 30px rgba(0,0,0,0.14);
+    --rose:#C99A8E;
+    --champagne:#DCC9A3;
+    --espresso:#6B5236;
+    --line: rgba(23,20,15,0.1);
+    --shadow: 0 10px 30px rgba(23,20,15,0.12);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;background:var(--green-deep);}
+  html,body{margin:0;padding:0;background:var(--ink);}
   body{
     font-family:'Poppins',sans-serif;
     color:var(--ink);
@@ -31,60 +31,114 @@
   }
   #app{
     width:100%; max-width:480px; min-height:100vh;
-    background: radial-gradient(1200px 400px at 50% -100px, var(--marble-deep), var(--marble));
+    background:var(--paper);
     display:flex; flex-direction:column;
   }
-  .topbar{
-    padding:26px 20px 18px; text-align:center;
+
+  .hero{
+    padding:34px 24px 26px;
+    background: linear-gradient(180deg, var(--paper-deep), var(--paper) 85%);
     border-bottom:1px solid var(--line);
   }
-  .brand{
-    font-family:'Cormorant Garamond', serif; font-weight:600; font-size:36px;
-    color:var(--gold-dark); letter-spacing:2px;
+  .eyebrow{
+    font-size:11.5px; letter-spacing:3px; text-transform:uppercase;
+    color:var(--gold-dark); font-weight:600; margin-bottom:10px;
   }
-  .brand-sub{
-    font-size:13px; letter-spacing:3px; color:var(--green); margin-top:2px; text-transform:uppercase;
+  .hero h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size:34px; line-height:1.08;
+    margin:0 0 10px; color:var(--ink);
   }
-  main{ flex:1; padding:22px 18px 40px; }
-  .field{ margin-bottom:16px; }
-  .field label{ display:block; font-size:13px; font-weight:700; color:var(--green); margin-bottom:6px; }
-  .field input, .field select{
-    width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--line);
-    background:var(--paper); font-family:inherit; font-size:15px; color:var(--ink);
+  .hero h1 em{ font-style:italic; color:var(--gold-dark); font-weight:500; }
+  .hero p{ font-size:13.5px; color:var(--ink); opacity:.62; margin:0; line-height:1.6; max-width:34ch; }
+  .window-pill{
+    display:inline-flex; align-items:center; gap:6px; margin-top:16px;
+    background:var(--card); border:1px solid var(--line); border-radius:30px;
+    padding:8px 14px; font-size:12px; font-weight:500; color:var(--ink); opacity:.8;
   }
-  .field input:focus, .field select:focus{ outline:2px solid var(--gold); }
+
+  main{ flex:1; padding:0 24px 40px; }
+  section{ margin-top:28px; }
+  .label{
+    font-size:11px; letter-spacing:2px; text-transform:uppercase; font-weight:600;
+    color:var(--gold-dark); margin-bottom:12px;
+  }
+
+  .swatches{ display:flex; gap:10px; }
+  .swatch{
+    flex:1; background:var(--card); border:1.5px solid var(--line); border-radius:16px;
+    padding:14px 8px 12px; text-align:center; cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .swatch:active{ transform:scale(0.97); }
+  .swatch.selected{ border-color:var(--gold); box-shadow:var(--shadow); }
+  .swatch-dot{
+    width:30px; height:30px; border-radius:50%; margin:0 auto 10px;
+    box-shadow: inset 0 -4px 6px rgba(0,0,0,0.12), inset 0 2px 3px rgba(255,255,255,0.4);
+  }
+  .swatch-name{ font-size:12.5px; font-weight:600; color:var(--ink); }
+  .swatch-price{ font-size:11.5px; color:var(--ink); opacity:.55; margin-top:2px; }
+
+  .date-strip{
+    display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none;
+  }
+  .date-strip::-webkit-scrollbar{ display:none; }
+  .date-chip{
+    flex:0 0 auto; width:52px; padding:10px 0; text-align:center; border-radius:14px;
+    background:var(--card); border:1.5px solid var(--line); cursor:pointer;
+  }
+  .date-chip .dow{ font-size:10px; text-transform:uppercase; letter-spacing:.5px; opacity:.55; }
+  .date-chip .dnum{ font-size:16px; font-weight:600; margin-top:2px; }
+  .date-chip.selected{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+  .date-chip.selected .dow{ opacity:.7; }
+
+  .time-grid{ display:flex; flex-wrap:wrap; gap:8px; }
+  .time-chip{
+    padding:9px 14px; border-radius:20px; background:var(--card); border:1.5px solid var(--line);
+    font-size:13px; font-weight:500; cursor:pointer;
+  }
+  .time-chip.selected{ background:var(--gold); border-color:var(--gold); color:#fff; }
+  .time-empty{ font-size:13px; opacity:.55; padding:6px 2px; }
+
+  .field{ margin-top:18px; }
+  .field label{ display:block; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; color:var(--ink); opacity:.5; margin-bottom:8px; }
+  .field input{
+    width:100%; padding:11px 2px; border:none; border-bottom:1.5px solid var(--line);
+    background:transparent; font-family:inherit; font-size:16px; color:var(--ink);
+  }
+  .field input:focus{ outline:none; border-bottom-color:var(--gold); }
+  .field input::placeholder{ color:var(--ink); opacity:.3; }
+
   .btn{
-    border:none; cursor:pointer; font-family:inherit; font-weight:700; border-radius:12px;
-    padding:15px; font-size:16px; width:100%;
+    border:none; cursor:pointer; font-family:inherit; font-weight:600; border-radius:14px;
+    padding:16px; font-size:15px; width:100%; letter-spacing:.3px;
   }
-  .btn-gold{ background:linear-gradient(135deg, var(--gold-light), var(--gold)); color:var(--green-deep); box-shadow:var(--shadow); }
+  .btn-gold{ background:linear-gradient(135deg, var(--gold-light), var(--gold)); color:#241C10; box-shadow:var(--shadow); margin-top:30px; }
   .btn-gold:active{ transform:scale(0.98); }
-  .note{ font-size:12.5px; color:var(--green); opacity:.75; line-height:1.7; margin-top:14px; text-align:center; }
-  .period-banner{
-    background:var(--gold-light); color:var(--green-deep); font-size:13px; font-weight:700;
-    padding:12px 14px; border-radius:12px; margin-bottom:18px; text-align:center; line-height:1.6;
-  }
+  .btn-gold:disabled{ opacity:.6; }
+  .note{ font-size:12px; color:var(--ink); opacity:.5; line-height:1.7; margin-top:14px; text-align:center; }
+
   .toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
-    background:var(--green-deep); color:var(--marble); padding:12px 20px; border-radius:30px;
-    font-size:14px; box-shadow:var(--shadow); z-index:50; opacity:0; pointer-events:none;
+    background:var(--ink); color:var(--paper); padding:12px 20px; border-radius:30px;
+    font-size:13.5px; box-shadow:var(--shadow); z-index:50; opacity:0; pointer-events:none;
     transition:opacity .25s; max-width:88%; text-align:center;
   }
   .toast.show{ opacity:1; }
-  .success{
-    text-align:center; padding:60px 20px;
-  }
-  .success .icon{ font-size:56px; margin-bottom:14px; }
-  .success h2{ font-family:'Cormorant Garamond', serif; color:var(--gold-dark); font-size:26px; margin:0 0 10px; }
-  .success p{ color:var(--green); font-size:14.5px; line-height:1.8; opacity:.85; margin:0 0 26px; }
-  .loading{ text-align:center; padding:60px 20px; color:var(--green); opacity:.7; }
+
+  .success{ text-align:center; padding:70px 26px; }
+  .success .icon{ font-size:44px; margin-bottom:16px; color:var(--gold-dark); }
+  .success h2{ font-family:'Fraunces', serif; color:var(--ink); font-size:26px; margin:0 0 10px; font-weight:600; }
+  .success p{ color:var(--ink); font-size:14px; line-height:1.8; opacity:.6; margin:0 0 28px; }
+  .loading{ text-align:center; padding:80px 20px; color:var(--ink); opacity:.5; font-size:14px; }
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="topbar">
-    <div class="brand">Marioma</div>
-    <div class="brand-sub">NAILS — Book Your Appointment</div>
+  <div class="hero">
+    <div class="eyebrow">Marioma Nails</div>
+    <h1>Reserve your <em>set</em></h1>
+    <p>Hand-finished acrylic, dip, and gel — book a time that works for you.</p>
+    <div id="window-pill"></div>
   </div>
   <main id="content">
     <div class="loading">Loading…</div>
@@ -112,8 +166,13 @@ const DEFAULT_SERVICES = [
   { id:'svc2', name:'Dip Powder', price:35 },
   { id:'svc3', name:'Hard Gel', price:35 },
 ];
+const SWATCH_COLORS = ['var(--rose)', 'var(--champagne)', 'var(--espresso)'];
+
 let services = [];
 let bookingSettings = null;
+let selectedServiceId = null;
+let selectedDate = null;
+let selectedTime = null;
 
 function escapeHtml(str){
   return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -141,13 +200,25 @@ function buildSlots(startTime, endTime, minutes){
   }
   return slots;
 }
+function fmtDateHuman(dateStr){
+  if(!dateStr) return '—';
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${months[m-1]} ${d}`;
+}
+function addDays(dateStr, n){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate()+n);
+  return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+}
 
 function renderClosed(){
   const main = document.getElementById('content');
   main.innerHTML = `
     <div class="success">
-      <div class="icon">🌸</div>
-      <h2>Online Booking Is Currently Closed</h2>
+      <div class="icon">✦</div>
+      <h2>Booking Is Currently Closed</h2>
       <p>Please reach out directly to book your appointment.</p>
     </div>`;
 }
@@ -156,90 +227,132 @@ function renderForm(){
   const main = document.getElementById('content');
   const effMin = bookingSettings.startDate < todayStr() ? todayStr() : bookingSettings.startDate;
   const effMax = bookingSettings.endDate;
+  selectedServiceId = services[0] ? services[0].id : null;
+  selectedDate = effMin;
+  selectedTime = null;
+
+  document.getElementById('window-pill').innerHTML =
+    `<div class="window-pill">📅&nbsp; ${fmtDateHuman(effMin)} – ${fmtDateHuman(effMax)} &nbsp;·&nbsp; ${bookingSettings.startTime}–${bookingSettings.endTime}</div>`;
+
   main.innerHTML = `
-    <div class="period-banner">📅 Booking available from ${fmtDateHuman(effMin)} to ${fmtDateHuman(effMax)} (from ${bookingSettings.startTime} to ${bookingSettings.endTime})</div>
-    <div class="field">
-      <label>Your Name</label>
-      <input id="b-name" placeholder="Your name">
-    </div>
-    <div class="field">
-      <label>Phone Number</label>
-      <input id="b-phone" placeholder="(555) 123-4567" type="tel">
-    </div>
-    <div class="field">
-      <label>Service</label>
-      <select id="b-service">
-        ${services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — $${s.price}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field">
-      <label>Date</label>
-      <input type="date" id="b-date" min="${effMin}" max="${effMax}" value="${effMin}">
-    </div>
-    <div class="field">
-      <label>Available Time</label>
-      <select id="b-time"><option value="">Loading available times…</option></select>
-    </div>
+    <section>
+      <div class="label">Choose your service</div>
+      <div class="swatches" id="swatches"></div>
+    </section>
+    <section>
+      <div class="label">Pick a date</div>
+      <div class="date-strip" id="date-strip"></div>
+    </section>
+    <section>
+      <div class="label">Pick a time</div>
+      <div class="time-grid" id="time-grid"><div class="time-empty">Loading available times…</div></div>
+    </section>
+    <section>
+      <div class="field">
+        <label>Your Name</label>
+        <input id="b-name" placeholder="Full name">
+      </div>
+      <div class="field">
+        <label>Phone Number</label>
+        <input id="b-phone" placeholder="(555) 123-4567" type="tel">
+      </div>
+    </section>
     <button class="btn btn-gold" id="b-submit">Confirm Booking</button>
     <div class="note">Your request will be reviewed, and you'll be contacted if anything needs to change.</div>
   `;
+
+  renderSwatches();
+  renderDateStrip(effMin, effMax);
   document.getElementById('b-submit').onclick = submitBooking;
-  document.getElementById('b-date').onchange = loadAvailableSlots;
   loadAvailableSlots();
 }
 
-function fmtDateHuman(dateStr){
-  if(!dateStr) return '—';
-  const [y,m,d] = dateStr.split('-').map(Number);
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  return `${months[m-1]} ${d}`;
+function renderSwatches(){
+  const el = document.getElementById('swatches');
+  el.innerHTML = services.map((s,i)=>`
+    <div class="swatch ${s.id===selectedServiceId?'selected':''}" data-id="${s.id}">
+      <div class="swatch-dot" style="background:${SWATCH_COLORS[i % SWATCH_COLORS.length]};"></div>
+      <div class="swatch-name">${escapeHtml(s.name)}</div>
+      <div class="swatch-price">$${s.price}</div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.swatch').forEach(card=>{
+    card.onclick = ()=>{
+      selectedServiceId = card.dataset.id;
+      el.querySelectorAll('.swatch').forEach(c=>c.classList.toggle('selected', c===card));
+    };
+  });
+}
+
+function renderDateStrip(effMin, effMax){
+  const el = document.getElementById('date-strip');
+  const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html = '';
+  let cur = effMin;
+  let guard = 0;
+  while(cur <= effMax && guard < 90){
+    const [y,m,d] = cur.split('-').map(Number);
+    const dow = dows[new Date(y, m-1, d).getDay()];
+    html += `<div class="date-chip ${cur===selectedDate?'selected':''}" data-date="${cur}">
+      <div class="dow">${dow}</div><div class="dnum">${d}</div>
+    </div>`;
+    cur = addDays(cur, 1);
+    guard++;
+  }
+  el.innerHTML = html;
+  el.querySelectorAll('.date-chip').forEach(chip=>{
+    chip.onclick = ()=>{
+      selectedDate = chip.dataset.date;
+      el.querySelectorAll('.date-chip').forEach(c=>c.classList.toggle('selected', c===chip));
+      loadAvailableSlots();
+    };
+  });
 }
 
 async function loadAvailableSlots(){
-  const date = document.getElementById('b-date').value;
-  const sel = document.getElementById('b-time');
-  sel.innerHTML = `<option value="">Loading available times…</option>`;
-  if(!date) return;
-  const effMin = bookingSettings.startDate < todayStr() ? todayStr() : bookingSettings.startDate;
-  if(date < effMin || date > bookingSettings.endDate){
-    sel.innerHTML = `<option value="">This date is outside the available booking window</option>`;
-    return;
-  }
+  const grid = document.getElementById('time-grid');
+  grid.innerHTML = `<div class="time-empty">Loading available times…</div>`;
+  selectedTime = null;
+  if(!selectedDate) return;
   const allSlots = buildSlots(bookingSettings.startTime, bookingSettings.endTime, bookingSettings.slotMinutes || 60);
   try{
-    const snap = await db.collection('appointments').where('date','==',date).get();
+    const snap = await db.collection('appointments').where('date','==',selectedDate).get();
     const taken = new Set(snap.docs.filter(d=>d.data().status!=='cancelled').map(d=>d.data().time));
     const free = allSlots.filter(t=>!taken.has(t));
     if(!free.length){
-      sel.innerHTML = `<option value="">No available times on this day</option>`;
+      grid.innerHTML = `<div class="time-empty">No available times on this day</div>`;
       return;
     }
-    sel.innerHTML = free.map(t=>`<option value="${t}">${t}</option>`).join('');
+    grid.innerHTML = free.map(t=>`<div class="time-chip" data-time="${t}">${t}</div>`).join('');
+    grid.querySelectorAll('.time-chip').forEach(chip=>{
+      chip.onclick = ()=>{
+        selectedTime = chip.dataset.time;
+        grid.querySelectorAll('.time-chip').forEach(c=>c.classList.toggle('selected', c===chip));
+      };
+    });
   }catch(e){
-    sel.innerHTML = `<option value="">Could not load available times</option>`;
+    grid.innerHTML = `<div class="time-empty">Could not load available times</div>`;
   }
 }
 
 async function submitBooking(){
   const name = document.getElementById('b-name').value.trim();
   const phone = document.getElementById('b-phone').value.trim();
-  const serviceId = document.getElementById('b-service').value;
-  const date = document.getElementById('b-date').value;
-  const time = document.getElementById('b-time').value;
-  const svc = services.find(s=>s.id===serviceId);
+  const svc = services.find(s=>s.id===selectedServiceId);
 
   if(!name){ showToast('Please enter your name'); return; }
   if(!phone){ showToast('Please enter your phone number'); return; }
-  if(!date){ showToast('Please choose a date'); return; }
-  if(!time){ showToast('Please choose an available time'); return; }
+  if(!selectedServiceId){ showToast('Please choose a service'); return; }
+  if(!selectedDate){ showToast('Please choose a date'); return; }
+  if(!selectedTime){ showToast('Please choose an available time'); return; }
 
   const effMin = bookingSettings.startDate < todayStr() ? todayStr() : bookingSettings.startDate;
-  if(date < effMin || date > bookingSettings.endDate){
+  if(selectedDate < effMin || selectedDate > bookingSettings.endDate){
     showToast('This date is outside the available booking window, please pick another date');
     return;
   }
   const allowedSlots = buildSlots(bookingSettings.startTime, bookingSettings.endTime, bookingSettings.slotMinutes || 60);
-  if(!allowedSlots.includes(time)){
+  if(!allowedSlots.includes(selectedTime)){
     showToast('That time is not available, please choose one from the list');
     return;
   }
@@ -247,7 +360,7 @@ async function submitBooking(){
   const btn = document.getElementById('b-submit');
   btn.disabled = true; btn.textContent = 'Booking…';
 
-  const slotId = `${date}_${time.replace(':','')}`;
+  const slotId = `${selectedDate}_${selectedTime.replace(':','')}`;
   const slotRef = db.collection('appointments').doc(slotId);
 
   try{
@@ -257,9 +370,9 @@ async function submitBooking(){
         throw new Error('TAKEN');
       }
       tx.set(slotRef, {
-        name, phone, serviceId,
+        name, phone, serviceId: selectedServiceId,
         serviceName: svc ? svc.name : '—',
-        date, time,
+        date: selectedDate, time: selectedTime,
         status: 'pending',
         price: svc ? svc.price : 0,
         source: 'online',
@@ -282,9 +395,9 @@ function renderSuccess(name){
   const main = document.getElementById('content');
   main.innerHTML = `
     <div class="success">
-      <div class="icon">💚</div>
-      <h2>We've received your request, ${escapeHtml(name)}</h2>
-      <p>Your request will be reviewed and you'll be contacted if anything needs to change. Thank you for choosing Marioma Nails.</p>
+      <div class="icon">✦</div>
+      <h2>Thank you, ${escapeHtml(name)}</h2>
+      <p>Your request has been received and will be reviewed. You'll be contacted if anything needs to change. Thank you for choosing Marioma Nails.</p>
       <button class="btn btn-gold" onclick="location.reload()">Book Another Appointment</button>
     </div>
   `;
