@@ -148,6 +148,10 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  emailjs.init({ publicKey: "xkpcGJOFhbNNN_XEV" });
+</script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBA7SXcaGf8Ouvi49f_5LMZzYjKtdFUsuw",
@@ -185,6 +189,17 @@ function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function sendBookingEmail(name, phone, serviceName, date, time){
+  emailjs.send('service_hs9q1d2', 'template_jcedvyg', {
+    customer_name: name,
+    service_name: serviceName,
+    booking_date: fmtDateHuman(date),
+    booking_time: time,
+    customer_phone: phone
+  }).catch(err=>{
+    console.error('EmailJS send failed:', err);
+  });
 }
 function buildSlots(startTime, endTime, minutes){
   const slots = [];
@@ -379,6 +394,7 @@ async function submitBooking(){
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     });
+    sendBookingEmail(name, phone, svc ? svc.name : '—', selectedDate, selectedTime);
     renderSuccess(name);
   }catch(e){
     if(e && e.message === 'TAKEN'){
