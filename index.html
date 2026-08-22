@@ -90,6 +90,7 @@
   .date-chip .dnum{ font-size:16px; font-weight:600; margin-top:2px; }
   .date-chip.selected{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
   .date-chip.selected .dow{ opacity:.7; }
+  .date-chip.closed{ opacity:.32; cursor:not-allowed; }
 
   .time-grid{ display:flex; flex-wrap:wrap; gap:8px; }
   .time-chip{
@@ -227,6 +228,13 @@ function addDays(dateStr, n){
   dt.setDate(dt.getDate()+n);
   return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
 }
+function getDaySchedule(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dow = new Date(y, m-1, d).getDay(); // 0=Sunday ... 6=Saturday
+  const sched = (bookingSettings.weeklySchedule || {})[String(dow)];
+  if(!sched || sched.open === false) return null;
+  return { start: sched.start || '10:00', end: sched.end || '17:00' };
+}
 
 function renderClosed(){
   const main = document.getElementById('content');
@@ -244,10 +252,15 @@ function renderForm(){
   const effMax = bookingSettings.endDate;
   selectedServiceId = services[0] ? services[0].id : null;
   selectedDate = effMin;
+  let guardD = 0;
+  while(!getDaySchedule(selectedDate) && selectedDate <= effMax && guardD < 90){
+    selectedDate = addDays(selectedDate, 1);
+    guardD++;
+  }
   selectedTime = null;
 
   document.getElementById('window-pill').innerHTML =
-    `<div class="window-pill">📅&nbsp; ${fmtDateHuman(effMin)} – ${fmtDateHuman(effMax)} &nbsp;·&nbsp; ${bookingSettings.startTime}–${bookingSettings.endTime}</div>`;
+    `<div class="window-pill">📅&nbsp; ${fmtDateHuman(effMin)} – ${fmtDateHuman(effMax)}</div>`;
 
   main.innerHTML = `
     <section>
@@ -308,7 +321,8 @@ function renderDateStrip(effMin, effMax){
   while(cur <= effMax && guard < 90){
     const [y,m,d] = cur.split('-').map(Number);
     const dow = dows[new Date(y, m-1, d).getDay()];
-    html += `<div class="date-chip ${cur===selectedDate?'selected':''}" data-date="${cur}">
+    const closed = !getDaySchedule(cur);
+    html += `<div class="date-chip ${cur===selectedDate?'selected':''} ${closed?'closed':''}" data-date="${cur}" ${closed?'data-closed="1"':''}>
       <div class="dow">${dow}</div><div class="dnum">${d}</div>
     </div>`;
     cur = addDays(cur, 1);
@@ -316,6 +330,7 @@ function renderDateStrip(effMin, effMax){
   }
   el.innerHTML = html;
   el.querySelectorAll('.date-chip').forEach(chip=>{
+    if(chip.dataset.closed) return;
     chip.onclick = ()=>{
       selectedDate = chip.dataset.date;
       el.querySelectorAll('.date-chip').forEach(c=>c.classList.toggle('selected', c===chip));
@@ -329,7 +344,12 @@ async function loadAvailableSlots(){
   grid.innerHTML = `<div class="time-empty">Loading available times…</div>`;
   selectedTime = null;
   if(!selectedDate) return;
-  const allSlots = buildSlots(bookingSettings.startTime, bookingSettings.endTime, bookingSettings.slotMinutes || 60);
+  const daySched = getDaySchedule(selectedDate);
+  if(!daySched){
+    grid.innerHTML = `<div class="time-empty">Closed on this day</div>`;
+    return;
+  }
+  const allSlots = buildSlots(daySched.start, daySched.end, bookingSettings.slotMinutes || 60);
   try{
     const snap = await db.collection('appointments').where('date','==',selectedDate).get();
     const taken = new Set(snap.docs.filter(d=>d.data().status!=='cancelled').map(d=>d.data().time));
@@ -366,7 +386,12 @@ async function submitBooking(){
     showToast('This date is outside the available booking window, please pick another date');
     return;
   }
-  const allowedSlots = buildSlots(bookingSettings.startTime, bookingSettings.endTime, bookingSettings.slotMinutes || 60);
+  const daySched = getDaySchedule(selectedDate);
+  if(!daySched){
+    showToast('We are closed on this day, please pick another date');
+    return;
+  }
+  const allowedSlots = buildSlots(daySched.start, daySched.end, bookingSettings.slotMinutes || 60);
   if(!allowedSlots.includes(selectedTime)){
     showToast('That time is not available, please choose one from the list');
     return;
